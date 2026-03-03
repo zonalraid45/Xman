@@ -1,6 +1,5 @@
 import requests
 import json
-import time
 
 TEAM_ID = "royalracer-fans"
 OUTPUT_FILE = "qualified_players.txt"
@@ -12,8 +11,8 @@ HEADERS = {
 
 def main():
     team_url = f"https://lichess.org/api/team/{TEAM_ID}/users"
-
-    response = requests.get(team_url, headers=HEADERS)
+    
+    response = requests.get(team_url, headers=HEADERS, timeout=30)
     response.raise_for_status()
 
     qualified = []
@@ -22,24 +21,8 @@ def main():
         if not line:
             continue
 
-        user_data = json.loads(line)
-        username = user_data.get("id")
-
-        # Safety delay to avoid rate limit
-        time.sleep(0.2)
-
-        user_resp = requests.get(
-            f"https://lichess.org/api/user/{username}",
-            headers={"Accept": "application/json", "User-Agent": "github-action-bot"}
-        )
-
-        if user_resp.status_code != 200:
-            continue
-
-        try:
-            user = user_resp.json()
-        except:
-            continue
+        user = json.loads(line)
+        username = user.get("id")
 
         blitz = user.get("perfs", {}).get("blitz", {}).get("rating", 0)
         rapid = user.get("perfs", {}).get("rapid", {}).get("rating", 0)
