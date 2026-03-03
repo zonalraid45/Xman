@@ -10,8 +10,8 @@ HEADERS = {
 }
 
 def main():
-    team_url = f"https://lichess.org/api/team/{TEAM_ID}/users"
-    
+    team_url = f"https://lichess.org/api/team/{TEAM_ID}/users?perfType=blitz,rapid"
+
     response = requests.get(team_url, headers=HEADERS, timeout=30)
     response.raise_for_status()
 
@@ -24,8 +24,9 @@ def main():
         user = json.loads(line)
         username = user.get("id")
 
-        blitz = user.get("perfs", {}).get("blitz", {}).get("rating", 0)
-        rapid = user.get("perfs", {}).get("rapid", {}).get("rating", 0)
+        perfs = user.get("perfs", {})
+        blitz = perfs.get("blitz", {}).get("rating", 0)
+        rapid = perfs.get("rapid", {}).get("rating", 0)
 
         if blitz >= 2000 and rapid >= 2000:
             qualified.append(f"{username} | Blitz: {blitz} | Rapid: {rapid}")
